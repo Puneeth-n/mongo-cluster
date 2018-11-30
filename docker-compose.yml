@@ -1,7 +1,7 @@
 version: '3'
 services:
   db01:
-    image: mongo:3.2
+    image: ${MONGO_VERSION}
     volumes:
     - datadb01:/data/db
     - ./etc/mongodb.conf:/etc/mongodb.conf
@@ -11,7 +11,7 @@ services:
     container_name: db01
 
   db02:
-    image: mongo:3.2
+    image: ${MONGO_VERSION}
     volumes:
     - datadb02:/data/db
     - ./etc/mongodb.conf:/etc/mongodb.conf
@@ -21,7 +21,7 @@ services:
     container_name: db02
 
   db03:
-    image: mongo:3.2
+    image: ${MONGO_VERSION}
     volumes:
     - datadb03:/data/db
     - ./etc/mongodb.conf:/etc/mongodb.conf
@@ -29,6 +29,21 @@ services:
     - "30003:27017"
     command: ["mongod", "--config", "/etc/mongodb.conf"]
     container_name: db03
+
+  init:
+    image: ${MONGO_VERSION}
+    volumes:
+      - ./rs.js:/opt/ct/rs.js
+    command: "mongo --host db /opt/ct/rs.js"
+    links:
+      - db03:db
+
+  client:
+    image: ${MONGO_VERSION}
+    volumes:
+      - .:/opt/ct
+    links:
+      - ${MONGO_INSTANCE}:db
 
 volumes:
   datadb01:
